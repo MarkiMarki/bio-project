@@ -10,5 +10,3 @@ Source code for the project is under /src
 <<<<<<< HEAD
 
 Tomer
-=======
->>>>>>> 781580da95de15e0ed868cbf29de47f9dfdba890
