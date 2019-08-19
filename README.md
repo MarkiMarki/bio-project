@@ -7,6 +7,5 @@ Immediate plots and analyses are made with JupyterLab and present in /JupyterScr
 Patient specific microscopy data will be found and uploaded to /patient_microscopy_data
 
 Source code for the project is under /src
-<<<<<<< HEAD
 
 Tomer
