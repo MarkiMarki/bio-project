@@ -2,10 +2,9 @@ try:
     import qnapstats
 except ImportError:
     from pip._internal import main as pip
-
     pip(['install', 'qnapstats'])
 from qnapstats import QNAPStats
-from ..settings.qnap_routing import *
+from ..settings.qnap_routing import *        # Take settings from settings folder (* takes all)
 
 
 class QnapHelper:
