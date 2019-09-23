@@ -1,4 +1,4 @@
-# Iftach Nachman's lab biology project
+# Iftach Nachman's lab ND project
 
 Hi all,
 
