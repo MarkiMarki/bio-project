@@ -1,3 +1,7 @@
 {
+<<<<<<< Updated upstream
     "python.pythonPath": "C:\\Users\\MarkiMaxI\\AppData\\Local\\conda\\conda\\envs\\tensorflow\\python.exe"
+=======
+    "python.pythonPath": "C:\\Users\\MarkiMaxI\\Anaconda3\\envs\\rstudio\\python.exe"
+>>>>>>> Stashed changes
 }
