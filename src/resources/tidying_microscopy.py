@@ -25,12 +25,17 @@ def get_measurement_code_from_filename(input_string):
         print("Field was not a string")
 
 
-# Getting all measurement codes from the raw data directory
-def get_all_measurement_codes():
-    filenames = [f for f in listdir(RAW_DATA_DIRECTORY)
-                 if isfile(join(RAW_DATA_DIRECTORY, f)) and '.xls' in f]
-    patient_codes = set(get_measurement_code_from_filename(filenames))
-    return patient_codes
+# Getting all measurement codes from the raw / tidy data directory
+def get_all_measurement_codes(folder="raw"):
+    measurement_codes = None
+    if folder == "raw":
+        filenames = [f for f in listdir(RAW_DATA_DIRECTORY)
+                    if isfile(join(RAW_DATA_DIRECTORY, f)) and '.xls' in f]
+        measurement_codes = set(get_measurement_code_from_filename(filenames))
+    elif folder == "tidy":
+        measurement_codes = [f.split('.')[0] for f in listdir(TIDY_DATA_DIRECTORY)
+                             if isfile(join(TIDY_DATA_DIRECTORY, f)) and '.csv' in f]
+    return measurement_codes
 
 
 # Receives a measurement code and returns a tidy dataframe of the measurement
