@@ -50,6 +50,7 @@ def heatmap(x, y, size, values):
 
 
 def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show=False, save=True):
+
     columns = list(measurement_data)
     corr = measurement_data[columns].corr()
     corr = pd.melt(corr.reset_index(),
@@ -68,4 +69,24 @@ def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show
         fig.set_size_inches(20, 20)
         filename = measurement_code + "_" + type + ".png"
         plt.savefig(PAIR_PLOT_DIRECTORY + filename, dpi=100)
-    pass
+    plt.clf()
+
+
+def get_top_r_squares(data, desired_var):
+    columns = list(data)
+    corr = data[columns].corr()[desired_var]
+    r_square = (corr ** 2).sort_values(ascending=False)[1:6]
+    return r_square
+
+def mkdir_p(mypath):
+    '''Creates a directory. equivalent to using mkdir -p on the command line'''
+
+    from errno import EEXIST
+    from os import makedirs,path
+
+    try:
+        makedirs(mypath)
+    except OSError as exc: # Python >2.5
+        if exc.errno == EEXIST and path.isdir(mypath):
+            pass
+        else: raise
