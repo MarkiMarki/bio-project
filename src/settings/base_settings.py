@@ -7,7 +7,8 @@ RAW_DATA_DIRECTORY = os.path.join(BASE_DATA_DIRECTORY,'raw_data\\')
 
 BASE_PLOT_DIRECTORY= os.path.join(PROJECT_ROOT_PATH, "plots\\")
 PAIR_PLOT_DIRECTORY= os.path.join(BASE_PLOT_DIRECTORY, "corr_heatmaps\\")
-SCATTER_CHRONO_ORDER_DIRECTORY= os.path.join(BASE_PLOT_DIRECTORY, "scatter_chrono_order\\")
+BOXPLOT_CHRONO_ORDER_DIRECTORY= os.path.join(BASE_PLOT_DIRECTORY, "boxplot_chrono_order\\")
+MEAN_MEDIAN_DIRECTORY=os.path.join(BASE_PLOT_DIRECTORY, "mean_median_by_chrono_order\\")
 
 
 FILE_NAME_FORMAT = "{condition}{patient}_{passage}_S{s}P{p}.xls"
