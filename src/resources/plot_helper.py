@@ -6,7 +6,7 @@ from scipy.interpolate import make_interp_spline, BSpline
 from src.settings.base_settings import *
 from src.settings.plot_settings import *
 
-
+# Transforms pearson correlation values to colors (for heatmap)
 def value_to_color(val):
     n_colors = 256  # Use 256 colors for the diverging color palette
     palette = sns.diverging_palette(20, 220, n=n_colors)  # Create the palette
@@ -17,7 +17,7 @@ def value_to_color(val):
     ind = int(val_position * (n_colors - 1))  # target index in the color palette
     return palette[ind]
 
-
+# Self implementation of heatmap from scatter plot (in order to adjust square size to magnitude)
 def heatmap(x, y, size, values):
     fig, ax = plt.subplots()
 
@@ -50,7 +50,9 @@ def heatmap(x, y, size, values):
     ax.set_xlim([-0.5, max([v for v in x_to_num.values()]) + 0.5])
     ax.set_ylim([-0.5, max([v for v in y_to_num.values()]) + 0.5])
 
-
+# Gets measurement code and data, plots a correlation heatmap.
+# Receives the RESTRICT_HEATMAP_VARIABLES parameter from plot_settings
+# and plots a full corr heatmap or top correlations to a single variable accordingly
 def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show=False, save=True):
     if RESTRICT_HEATMAP_VARIABLES:
         fig, ax = plt.subplots(figsize=(12, 12))
@@ -87,7 +89,7 @@ def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show
         plt.savefig(directory_name + "\\" + filename, dpi=100)
     plt.close('all')
 
-
+# Plots every variable against chronological order, grouped with boxplots
 def plot_all_variables_against_chrono_order(data, code, show=False, save=True):
     variables = set(data)
     variables.remove("CHRONO_ORDER")
@@ -105,7 +107,7 @@ def plot_all_variables_against_chrono_order(data, code, show=False, save=True):
             box_plot.figure.savefig(dir_name + "\\" + filename)
         plt.close('all')
 
-
+# Plots an interpolated line for the mean and median of every variable grouped by chronological order
 def plot_mean_And_median_against_chrono_order(data, code, show=False, save=True):
     median_data = data.groupby(['CHRONO_ORDER']).median()
     mean_data = data.groupby(['CHRONO_ORDER']).mean()
@@ -147,7 +149,7 @@ def plot_mean_And_median_against_chrono_order(data, code, show=False, save=True)
 
 
 
-
+# Create a new directory in a given path
 def mkdir_p(mypath):
     '''Creates a directory. equivalent to using mkdir -p on the command line'''
 
