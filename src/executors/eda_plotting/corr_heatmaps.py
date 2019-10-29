@@ -37,7 +37,7 @@ def plot_mito_tmre(data, code, save=True, show=False):
 
 # Lose irrelevant variables from  the tidy data
 def drop_irrelevant_variables(data):
-    return data.drop(columns=HEATMAP_IRRELEVANT_VARIABLES)
+    return data.drop(columns=IRRELEVANT_VARIABLES)
 
 # Plots correlarion heatmap for all variables / sorted R squared against chronological order (decided in plot_settings)
 if __name__ == "__main__":

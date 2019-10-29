@@ -1,6 +1,6 @@
 
 # Variables that are not needed for heatmaps
-HEATMAP_IRRELEVANT_VARIABLES = {
+IRRELEVANT_VARIABLES = {
     "Row",
     "Col",
     "Target",

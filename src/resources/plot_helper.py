@@ -3,6 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import make_interp_spline, BSpline
+
+from src.resources.tidying_microscopy import *
 from src.settings.base_settings import *
 from src.settings.plot_settings import *
 
@@ -113,7 +115,7 @@ def plot_all_variables_against_chrono_order(data, code, show=False, save=True):
 
 
 # Plots an interpolated line for the mean and median of every variable grouped by chronological order
-def plot_mean_and_median_against_chrono_order(data, code, show=False, save=True, mix=None):
+def plot_mean_and_median_against_chrono_order(data, code, show=False, save=True, mix="merged"):
     mefian_data = data.groupby(['CHRONO_ORDER']).median()
     mean_data = data.groupby(['CHRONO_ORDER']).mean()
     variables = set(data)
@@ -131,17 +133,15 @@ def plot_mean_and_median_against_chrono_order(data, code, show=False, save=True,
         if show:
             plt.show()
         if save:
-            dir_name = MEAN_MEDIAN_DIRECTORY + code + "\\"
-            if mix is not None:
-                dir_name = dir_name + mix + "\\"
+            dir_name = MEAN_MEDIAN_DIRECTORY + code + "\\" + mix + "\\"
             mkdir_p(dir_name)
             filename = var + ".png"
             plt.savefig(dir_name + "\\" + filename)
         plt.close('all')
 
 
-# Plots an interpolated line for the mean and median of every variable grouped by chronological order
-def plot_sd_and_median_against_chrono_order(data, code, show=False, save=True, mix = None):
+# Plots an interpolated line for the std. deviation and median of every variable grouped by chronological order
+def plot_sd_and_median_against_chrono_order(data, code, show=False, save=True, mix="merged"):
     median_data = data.groupby(['CHRONO_ORDER']).median()
     sd_data = data.groupby(['CHRONO_ORDER']).std()
     variables = set(data)
@@ -159,26 +159,50 @@ def plot_sd_and_median_against_chrono_order(data, code, show=False, save=True, m
         if show:
             plt.show()
         if save:
-            dir_name = SD_MEDIAN_DIRECTORY + code + "\\"
-            if mix is not None:
-                dir_name = dir_name + mix + "\\"
+            dir_name = SD_MEDIAN_DIRECTORY + code + "\\" + mix + "\\"
             mkdir_p(dir_name)
             filename = var + ".png"
             plt.savefig(dir_name + "\\" + filename)
         plt.close('all')
 
 
-# Create a new directory in a given path
-def mkdir_p(mypath):
-    '''Creates a directory. equivalent to using mkdir -p on the command line'''
+def plot_merged_pearson_corr_for_params(params, show=False, save=True, mix="merged"):
+    measurement_codes = get_all_measurement_codes(
+        folder="tidy",
+        mix=mix
+    )
+    corr_lst = []
+    for measurement_code in measurement_codes:
+        measurement_data = get_tidy_data(measurement_code=measurement_code, mix=mix).drop(columns=IRRELEVANT_VARIABLES)
+        corr = measurement_data.corr()[['CHRONO_ORDER']].transpose().drop(columns="CHRONO_ORDER")
+        corr_lst.append(corr)
+    corr_df = pd.concat(corr_lst,sort = False)
+    variable_list = list(corr_df)
+    channel_range = range(1, 5)
+    if mix == "merged":
+        channel_range = range(1, 3)
+    for i in channel_range:
+        df = None
+        if i == 1:
+            df = corr_df[[var for var in variable_list if "NUC" in var]]
+        elif i == 2:
+            df = corr_df[[var for var in variable_list if "CELL" in var]]
+        elif i == 3:
+            df = corr_df[[var for var in variable_list if "LYSO" in var or "MITO" in var]]
+        elif i == 4:
+            df = corr_df[[var for var in variable_list if "TMRE" in var or "ER " in var]]
+        sns.set(style="whitegrid")
+        ax = sns.boxplot(data=df, color="seagreen")
+        ax.set_title('Pearson Correlation to Chronological Order')
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=20)
+        fig = plt.gcf()
+        fig.set_size_inches(10, 10)
+        if show:
+            plt.show()
+        if save:
+            dir_name = MERGED_PEARSON_CORR_DIRECTORY + mix + "\\"
+            mkdir_p(dir_name)
+            filename = "CH" + str(i) + ".png"
+            ax.figure.savefig(dir_name + "\\" + filename)
+        plt.close('all')
 
-    from errno import EEXIST
-    from os import makedirs, path
-
-    try:
-        makedirs(mypath)
-    except OSError as exc:  # Python >2.5
-        if exc.errno == EEXIST and path.isdir(mypath):
-            pass
-        else:
-            raise

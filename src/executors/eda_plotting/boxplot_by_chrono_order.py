@@ -4,6 +4,7 @@ from src.resources.tidying_microscopy import *
 # Plot all variables against chronological order, grouped with boxplots
 
 if __name__ == "__main__":
+
     measurement_codes = get_all_measurement_codes("tidy")
     measurement_count = len(measurement_codes)
     i = 0
