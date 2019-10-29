@@ -11,6 +11,6 @@ BASE_PLOT_DIRECTORY= os.path.join(PROJECT_ROOT_PATH, "plots\\")
 PAIR_PLOT_DIRECTORY= os.path.join(BASE_PLOT_DIRECTORY, "corr_heatmaps\\")
 BOXPLOT_CHRONO_ORDER_DIRECTORY= os.path.join(BASE_PLOT_DIRECTORY, "boxplot_chrono_order\\")
 MEAN_MEDIAN_DIRECTORY=os.path.join(BASE_PLOT_DIRECTORY, "mean_median_by_chrono_order\\")
-
+SD_MEDIAN_DIRECTORY=os.path.join(BASE_PLOT_DIRECTORY, "sd_median_by_chrono_order\\")
 
 FILE_NAME_FORMAT = "{condition}{patient}_{passage}_S{s}P{p}.xls"

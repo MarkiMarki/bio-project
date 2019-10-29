@@ -6,6 +6,7 @@ from scipy.interpolate import make_interp_spline, BSpline
 from src.settings.base_settings import *
 from src.settings.plot_settings import *
 
+
 # Transforms pearson correlation values to colors (for heatmap)
 def value_to_color(val):
     n_colors = 256  # Use 256 colors for the diverging color palette
@@ -16,6 +17,7 @@ def value_to_color(val):
             color_max - color_min)  # position of value in the input range, relative to the length of the input range
     ind = int(val_position * (n_colors - 1))  # target index in the color palette
     return palette[ind]
+
 
 # Self implementation of heatmap from scatter plot (in order to adjust square size to magnitude)
 def heatmap(x, y, size, values):
@@ -49,6 +51,7 @@ def heatmap(x, y, size, values):
 
     ax.set_xlim([-0.5, max([v for v in x_to_num.values()]) + 0.5])
     ax.set_ylim([-0.5, max([v for v in y_to_num.values()]) + 0.5])
+
 
 # Gets measurement code and data, plots a correlation heatmap.
 # Receives the RESTRICT_HEATMAP_VARIABLES parameter from plot_settings
@@ -89,6 +92,7 @@ def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show
         plt.savefig(directory_name + "\\" + filename, dpi=100)
     plt.close('all')
 
+
 # Plots every variable against chronological order, grouped with boxplots
 def plot_all_variables_against_chrono_order(data, code, show=False, save=True):
     variables = set(data)
@@ -107,46 +111,61 @@ def plot_all_variables_against_chrono_order(data, code, show=False, save=True):
             box_plot.figure.savefig(dir_name + "\\" + filename)
         plt.close('all')
 
+
 # Plots an interpolated line for the mean and median of every variable grouped by chronological order
-def plot_mean_And_median_against_chrono_order(data, code, show=False, save=True):
-    median_data = data.groupby(['CHRONO_ORDER']).median()
+def plot_mean_and_median_against_chrono_order(data, code, show=False, save=True, mix=None):
+    mefian_data = data.groupby(['CHRONO_ORDER']).median()
     mean_data = data.groupby(['CHRONO_ORDER']).mean()
     variables = set(data)
     variables.remove("CHRONO_ORDER")
     for var in variables:
         mean_y = mean_data[[var]].dropna()
-        median_y = median_data[[var]].dropna()
+        median_y = mefian_data[[var]].dropna()
         x = mean_y.index.values
         fig = plt.figure()
         ax = plt.subplot(111)
         ax.plot(x, mean_y, label='Mean')
         ax.plot(x, median_y, label='Median')
         plt.title(var)
-        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow = True, ncol = 2)
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
         if show:
             plt.show()
         if save:
             dir_name = MEAN_MEDIAN_DIRECTORY + code + "\\"
+            if mix is not None:
+                dir_name = dir_name + mix + "\\"
             mkdir_p(dir_name)
             filename = var + ".png"
             plt.savefig(dir_name + "\\" + filename)
         plt.close('all')
-        # y = median_data[[var]].dropna()
-        # x = y.index.values
-        # xnew = np.linspace(x.min(), x.max(), 300)
-        # spl = make_interp_spline(x, y, k=3)  # BSpline object
-        # smooth = spl(xnew)
-        # plt.plot(xnew, smooth)
-        #
-        # y = mean_data[[var]].dropna()
-        # x = y.index.values
-        # xnew = np.linspace(x.min(), x.max(), 300)
-        # spl = make_interp_spline(x, y, k=3)  # BSpline object
-        # smooth = spl(xnew)
-        # plt.plot(xnew, smooth)
-        # plt.show()
 
 
+# Plots an interpolated line for the mean and median of every variable grouped by chronological order
+def plot_sd_and_median_against_chrono_order(data, code, show=False, save=True, mix = None):
+    median_data = data.groupby(['CHRONO_ORDER']).median()
+    sd_data = data.groupby(['CHRONO_ORDER']).std()
+    variables = set(data)
+    variables.remove("CHRONO_ORDER")
+    for var in variables:
+        sd_y = sd_data[[var]].dropna()
+        median_y = median_data[[var]].dropna()
+        x = sd_y.index.values
+        fig = plt.figure()
+        ax = plt.subplot(111)
+        ax.plot(x, sd_y, label='SD')
+        ax.plot(x, median_y, label='Median')
+        plt.title(var)
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
+        if show:
+            plt.show()
+        if save:
+            dir_name = SD_MEDIAN_DIRECTORY + code + "\\"
+            if mix is not None:
+                dir_name = dir_name + mix + "\\"
+            mkdir_p(dir_name)
+            filename = var + ".png"
+            plt.savefig(dir_name + "\\" + filename)
+        plt.close('all')
 
 
 # Create a new directory in a given path
