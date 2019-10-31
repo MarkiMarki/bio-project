@@ -1,3 +1,8 @@
+'''
+Should contain settings for logging into the QNAP server
+'''
+
+
 
 QNAP_IP1 = "132.66.44.245"
 QNAP_PORT = 8080

@@ -5,7 +5,7 @@ import pandas as pd
 
 from src.settings.plot_settings import *
 
-
+# Plot heatmaps for er_lyso mix
 def plot_er_lyso(data, code, save=True, show=False):
     variables = set(data)
     if ER_LYSO_UNIQUE_VARIABLES.issubset(variables):
@@ -20,7 +20,7 @@ def plot_er_lyso(data, code, save=True, show=False):
             show=show
         )
 
-
+# Plot heatmaps for mito_tmre mix
 def plot_mito_tmre(data, code, save=True, show=False):
     variables = set(data)
     if TMRE_UNIQUE_VARIABLES.issubset(variables):
@@ -35,11 +35,11 @@ def plot_mito_tmre(data, code, save=True, show=False):
             show=show
         )
 
-
+# Lose irrelevant variables from  the tidy data
 def drop_irrelevant_variables(data):
-    return data.drop(columns=HEATMAP_IRRELEVANT_VARIABLES)
+    return data.drop(columns=IRRELEVANT_VARIABLES)
 
-
+# Plots correlarion heatmap for all variables / sorted R squared against chronological order (decided in plot_settings)
 if __name__ == "__main__":
     measurement_codes = get_all_measurement_codes("tidy")
     measurement_count = len(measurement_codes)

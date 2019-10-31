@@ -3,10 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import make_interp_spline, BSpline
+
+from src.resources.tidying_microscopy import *
 from src.settings.base_settings import *
 from src.settings.plot_settings import *
 
 
+# Transforms pearson correlation values to colors (for heatmap)
 def value_to_color(val):
     n_colors = 256  # Use 256 colors for the diverging color palette
     palette = sns.diverging_palette(20, 220, n=n_colors)  # Create the palette
@@ -18,6 +21,7 @@ def value_to_color(val):
     return palette[ind]
 
 
+# Self implementation of heatmap from scatter plot (in order to adjust square size to magnitude)
 def heatmap(x, y, size, values):
     fig, ax = plt.subplots()
 
@@ -51,6 +55,9 @@ def heatmap(x, y, size, values):
     ax.set_ylim([-0.5, max([v for v in y_to_num.values()]) + 0.5])
 
 
+# Gets measurement code and data, plots a correlation heatmap.
+# Receives the RESTRICT_HEATMAP_VARIABLES parameter from plot_settings
+# and plots a full corr heatmap or top correlations to a single variable accordingly
 def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show=False, save=True):
     if RESTRICT_HEATMAP_VARIABLES:
         fig, ax = plt.subplots(figsize=(12, 12))
@@ -88,6 +95,7 @@ def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show
     plt.close('all')
 
 
+# Plots every variable against chronological order, grouped with boxplots
 def plot_all_variables_against_chrono_order(data, code, show=False, save=True):
     variables = set(data)
     variables.remove("CHRONO_ORDER")
@@ -106,58 +114,95 @@ def plot_all_variables_against_chrono_order(data, code, show=False, save=True):
         plt.close('all')
 
 
-def plot_mean_And_median_against_chrono_order(data, code, show=False, save=True):
-    median_data = data.groupby(['CHRONO_ORDER']).median()
+# Plots an interpolated line for the mean and median of every variable grouped by chronological order
+def plot_mean_and_median_against_chrono_order(data, code, show=False, save=True, mix="merged"):
+    mefian_data = data.groupby(['CHRONO_ORDER']).median()
     mean_data = data.groupby(['CHRONO_ORDER']).mean()
     variables = set(data)
     variables.remove("CHRONO_ORDER")
     for var in variables:
         mean_y = mean_data[[var]].dropna()
-        median_y = median_data[[var]].dropna()
+        median_y = mefian_data[[var]].dropna()
         x = mean_y.index.values
         fig = plt.figure()
         ax = plt.subplot(111)
         ax.plot(x, mean_y, label='Mean')
         ax.plot(x, median_y, label='Median')
         plt.title(var)
-        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow = True, ncol = 2)
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
         if show:
             plt.show()
         if save:
-            dir_name = MEAN_MEDIAN_DIRECTORY + code + "\\"
+            dir_name = MEAN_MEDIAN_DIRECTORY + code + "\\" + mix + "\\"
             mkdir_p(dir_name)
             filename = var + ".png"
             plt.savefig(dir_name + "\\" + filename)
         plt.close('all')
-        # y = median_data[[var]].dropna()
-        # x = y.index.values
-        # xnew = np.linspace(x.min(), x.max(), 300)
-        # spl = make_interp_spline(x, y, k=3)  # BSpline object
-        # smooth = spl(xnew)
-        # plt.plot(xnew, smooth)
-        #
-        # y = mean_data[[var]].dropna()
-        # x = y.index.values
-        # xnew = np.linspace(x.min(), x.max(), 300)
-        # spl = make_interp_spline(x, y, k=3)  # BSpline object
-        # smooth = spl(xnew)
-        # plt.plot(xnew, smooth)
-        # plt.show()
 
 
+# Plots an interpolated line for the std. deviation and median of every variable grouped by chronological order
+def plot_sd_and_median_against_chrono_order(data, code, show=False, save=True, mix="merged"):
+    median_data = data.groupby(['CHRONO_ORDER']).median()
+    sd_data = data.groupby(['CHRONO_ORDER']).std()
+    variables = set(data)
+    variables.remove("CHRONO_ORDER")
+    for var in variables:
+        sd_y = sd_data[[var]].dropna()
+        median_y = median_data[[var]].dropna()
+        x = sd_y.index.values
+        fig = plt.figure()
+        ax = plt.subplot(111)
+        ax.plot(x, sd_y, label='SD')
+        ax.plot(x, median_y, label='Median')
+        plt.title(var)
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
+        if show:
+            plt.show()
+        if save:
+            dir_name = SD_MEDIAN_DIRECTORY + code + "\\" + mix + "\\"
+            mkdir_p(dir_name)
+            filename = var + ".png"
+            plt.savefig(dir_name + "\\" + filename)
+        plt.close('all')
 
 
+def plot_merged_pearson_corr_for_params(params, show=False, save=True, mix="merged"):
+    measurement_codes = get_all_measurement_codes(
+        folder="tidy",
+        mix=mix
+    )
+    corr_lst = []
+    for measurement_code in measurement_codes:
+        measurement_data = get_tidy_data(measurement_code=measurement_code, mix=mix).drop(columns=IRRELEVANT_VARIABLES)
+        corr = measurement_data.corr()[['CHRONO_ORDER']].transpose().drop(columns="CHRONO_ORDER")
+        corr_lst.append(corr)
+    corr_df = pd.concat(corr_lst,sort = False)
+    variable_list = list(corr_df)
+    channel_range = range(1, 5)
+    if mix == "merged":
+        channel_range = range(1, 3)
+    for i in channel_range:
+        df = None
+        if i == 1:
+            df = corr_df[[var for var in variable_list if "NUC" in var]]
+        elif i == 2:
+            df = corr_df[[var for var in variable_list if "CELL" in var]]
+        elif i == 3:
+            df = corr_df[[var for var in variable_list if "LYSO" in var or "MITO" in var]]
+        elif i == 4:
+            df = corr_df[[var for var in variable_list if "TMRE" in var or "ER " in var]]
+        sns.set(style="whitegrid")
+        ax = sns.boxplot(data=df, color="seagreen")
+        ax.set_title('Pearson Correlation to Chronological Order')
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=20)
+        fig = plt.gcf()
+        fig.set_size_inches(10, 10)
+        if show:
+            plt.show()
+        if save:
+            dir_name = MERGED_PEARSON_CORR_DIRECTORY + mix + "\\"
+            mkdir_p(dir_name)
+            filename = "CH" + str(i) + ".png"
+            ax.figure.savefig(dir_name + "\\" + filename)
+        plt.close('all')
 
-def mkdir_p(mypath):
-    '''Creates a directory. equivalent to using mkdir -p on the command line'''
-
-    from errno import EEXIST
-    from os import makedirs, path
-
-    try:
-        makedirs(mypath)
-    except OSError as exc:  # Python >2.5
-        if exc.errno == EEXIST and path.isdir(mypath):
-            pass
-        else:
-            raise

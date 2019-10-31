@@ -1,11 +1,14 @@
 import numpy as np
 
+# Variable names that didn't read properly are replaced using this mapper
 COLUMN_RENAME_MAPPER = {
     'Unnamed: 0': 'Condition',
     'Unnamed: 1': 'Patient',
     ' ': 'Row',
     ' .1': 'Col'
 }
+
+# Creation of the serpent iterator - list of (row,col) tuples ordered by chronological order
 SERPENT_ORDERED_ITERATOR = []
 for row in 'BCDEFG':
     sqn = list(np.arange(2, 12))
@@ -13,6 +16,7 @@ for row in 'BCDEFG':
     for col in sqn:
         SERPENT_ORDERED_ITERATOR += [(row, col)]
 
+# Sets of mix-specific variables
 TMRE_UNIQUE_VARIABLES = {
     "TMRE AREA",
     "TMRE INTENSITY",
