@@ -8,6 +8,7 @@ from os.path import isfile, join
 import glob
 import json
 
+
 # Create a new directory in a given path
 def mkdir_p(mypath):
     '''Creates a directory. equivalent to using mkdir -p on the command line'''
@@ -41,19 +42,30 @@ def get_patient_code_from_filename(input_string):
     except TypeError:
         print("Field was not a string")
 
+
 @np.vectorize
 def get_plate_code_from_filename(input_string):
     try:
-        return re.findall(r"S\dP\d",input_string)[0]
+        return re.findall(r"S\dP\d", input_string)[0]
     except TypeError:
         print("Field was not a string")
+
+def get_mix_from_plate_code(plate_code):
+    filename_list = glob.glob(RAW_DATA_DIRECTORY + "*_"+ plate_code+'.xls')
+    patient_vars = list(pd.read_excel(filename_list[0], header=1).rename(mapper=COLUMN_RENAME_MAPPER, axis=1))
+    if "ER AREA" in patient_vars:
+        return "er_lyso"
+    return "mito_tmre"
 
 
 def get_patient_vs_plate_tuple_from_filenames(input_string):
     patient_codes = get_patient_code_from_filename(input_string)
     plate_codes = get_plate_code_from_filename(input_string)
     plate_set = set(plate_codes)
-    return {plate_code: list(patient_codes[np.where(plate_codes == plate_code)]) for plate_code in plate_set}
+    return {plate_code: {
+        "patient_codes": list(patient_codes[np.where(plate_codes == plate_code)]),
+        "mix": get_mix_from_plate_code(plate_code)
+    } for plate_code in plate_set}
 
 
 # Getting all measurement codes from the raw / tidy data directory

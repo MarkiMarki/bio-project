@@ -116,13 +116,13 @@ def plot_all_variables_against_chrono_order(data, code, show=False, save=True):
 
 # Plots an interpolated line for the mean and median of every variable grouped by chronological order
 def plot_mean_and_median_against_chrono_order(data, code, show=False, save=True, mix="merged"):
-    mefian_data = data.groupby(['CHRONO_ORDER']).median()
+    median_data = data.groupby(['CHRONO_ORDER']).median()
     mean_data = data.groupby(['CHRONO_ORDER']).mean()
     variables = set(data)
     variables.remove("CHRONO_ORDER")
     for var in variables:
         mean_y = mean_data[[var]].dropna()
-        median_y = mefian_data[[var]].dropna()
+        median_y = median_data[[var]].dropna()
         x = mean_y.index.values
         fig = plt.figure()
         ax = plt.subplot(111)
@@ -176,7 +176,7 @@ def plot_merged_spearman_corr_for_params(params, show=False, save=True, mix="mer
         measurement_data = get_tidy_data(measurement_code=measurement_code, mix=mix).drop(columns=IRRELEVANT_VARIABLES)
         corr = measurement_data.corr(method='spearman')[['CHRONO_ORDER']].transpose().drop(columns="CHRONO_ORDER")
         corr_lst.append(corr)
-    corr_df = pd.concat(corr_lst,sort = False)
+    corr_df = pd.concat(corr_lst, sort=False)
     variable_list = list(corr_df)
     channel_range = range(1, 5)
     if mix == "merged":
@@ -206,3 +206,32 @@ def plot_merged_spearman_corr_for_params(params, show=False, save=True, mix="mer
             ax.figure.savefig(dir_name + "\\" + filename)
         plt.close('all')
 
+
+# Plots an interpolated line for the a feature of 2 samples in the same plate
+def plot_feature_median_by_plate(plate, patient_list, show=False, save=True, mix="merged"):
+    data_dict = {code: get_tidy_data(code, mix).groupby(['CHRONO_ORDER']).median() for code in patient_list}
+    variables = set(get_tidy_data(patient_list[0], mix))
+    variables.remove("CHRONO_ORDER")
+    for var in IRRELEVANT_VARIABLES:
+        variables.remove(var)
+
+    for var in variables:
+        fig = plt.figure()
+        ax = plt.subplot(111)
+
+        for code, median_data in data_dict.items():
+            print(var+" "+code+"/n")
+            median_y = median_data[[var]].dropna()
+            x = median_y.index.values
+            ax.plot(x, median_y, label=code)
+
+        plt.title(var)
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=2)
+        if show:
+            plt.show()
+        if save:
+            dir_name = FEATURE_MEDIAN_BY_PLATE_DIRECTORY + plate + "\\"
+            mkdir_p(dir_name)
+            filename = var + ".png"
+            plt.savefig(dir_name + "\\" + filename)
+        plt.close('all')
