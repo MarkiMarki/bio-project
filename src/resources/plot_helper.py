@@ -9,7 +9,7 @@ from src.settings.base_settings import *
 from src.settings.plot_settings import *
 
 
-# Transforms pearson correlation values to colors (for heatmap)
+# Transforms correlation values to colors (for heatmap)
 def value_to_color(val):
     n_colors = 256  # Use 256 colors for the diverging color palette
     palette = sns.diverging_palette(20, 220, n=n_colors)  # Create the palette
@@ -61,7 +61,7 @@ def heatmap(x, y, size, values):
 def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show=False, save=True):
     if RESTRICT_HEATMAP_VARIABLES:
         fig, ax = plt.subplots(figsize=(12, 12))
-        corr = measurement_data.corr()[[HEATMAP_TARGET_VARIABLE]].pow(2)
+        corr = measurement_data.corr(method='spearman')[[HEATMAP_TARGET_VARIABLE]].pow(2)
         sns.heatmap(corr.sort_values(HEATMAP_TARGET_VARIABLE).tail(10),
                     vmax=1, vmin=0, cmap="YlGnBu", annot=True, ax=ax)
         plt.yticks(rotation=0)
@@ -70,7 +70,7 @@ def plot_measurement_corr_heatmap(measurement_code, measurement_data, type, show
         fig.set_size_inches(20, 12)
     else:
         columns = list(measurement_data)
-        corr = measurement_data[columns].corr()
+        corr = measurement_data[columns].corr(method='spearman')
         corr = pd.melt(corr.reset_index(),
                        id_vars='index')  # Unpivot the dataframe, so we can get pair of arrays for x and y
         corr.columns = ['x', 'y', 'value']
@@ -166,15 +166,15 @@ def plot_sd_and_median_against_chrono_order(data, code, show=False, save=True, m
         plt.close('all')
 
 
-def plot_merged_pearson_corr_for_params(params, show=False, save=True, mix="merged"):
-    measurement_codes = get_all_measurement_codes(
+def plot_merged_spearman_corr_for_params(params, show=False, save=True, mix="merged"):
+    measurement_codes = get_all_patient_codes(
         folder="tidy",
         mix=mix
     )
     corr_lst = []
     for measurement_code in measurement_codes:
         measurement_data = get_tidy_data(measurement_code=measurement_code, mix=mix).drop(columns=IRRELEVANT_VARIABLES)
-        corr = measurement_data.corr()[['CHRONO_ORDER']].transpose().drop(columns="CHRONO_ORDER")
+        corr = measurement_data.corr(method='spearman')[['CHRONO_ORDER']].transpose().drop(columns="CHRONO_ORDER")
         corr_lst.append(corr)
     corr_df = pd.concat(corr_lst,sort = False)
     variable_list = list(corr_df)
@@ -193,14 +193,14 @@ def plot_merged_pearson_corr_for_params(params, show=False, save=True, mix="merg
             df = corr_df[[var for var in variable_list if "TMRE" in var or "ER " in var]]
         sns.set(style="whitegrid")
         ax = sns.boxplot(data=df, color="seagreen")
-        ax.set_title('Pearson Correlation to Chronological Order')
+        ax.set_title('Spearman Correlation to Chronological Order')
         ax.set_xticklabels(ax.get_xticklabels(), rotation=20)
         fig = plt.gcf()
         fig.set_size_inches(10, 10)
         if show:
             plt.show()
         if save:
-            dir_name = MERGED_PEARSON_CORR_DIRECTORY + mix + "\\"
+            dir_name = MERGED_SPEARMAN_CORR_DIRECTORY + mix + "\\"
             mkdir_p(dir_name)
             filename = "CH" + str(i) + ".png"
             ax.figure.savefig(dir_name + "\\" + filename)

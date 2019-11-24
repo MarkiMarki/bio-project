@@ -5,7 +5,7 @@ if __name__ == "__main__":
     for mix in ["er_lyso", "mito_tmre"]:
         print(mix + "\n ======================================")
         i = 0
-        measurement_codes = get_all_measurement_codes(
+        measurement_codes = get_all_patient_codes(
             folder="tidy",
             mix=mix
         )

@@ -4,7 +4,7 @@ from src.settings.base_settings import *
 # Execute this file to transform all raw phenotyping data to tidy data
 
 if __name__ == "__main__":
-    measurement_codes = get_all_measurement_codes()
+    measurement_codes = get_all_patient_codes()
     measurement_count = len(measurement_codes)
     i = 0
     for measurement_code in measurement_codes:

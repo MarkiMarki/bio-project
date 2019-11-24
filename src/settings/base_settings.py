@@ -12,6 +12,6 @@ PAIR_PLOT_DIRECTORY = os.path.join(BASE_PLOT_DIRECTORY, "corr_heatmaps\\")
 BOXPLOT_CHRONO_ORDER_DIRECTORY = os.path.join(BASE_PLOT_DIRECTORY, "boxplot_chrono_order\\")
 MEAN_MEDIAN_DIRECTORY = os.path.join(BASE_PLOT_DIRECTORY, "mean_median_by_chrono_order\\")
 SD_MEDIAN_DIRECTORY = os.path.join(BASE_PLOT_DIRECTORY, "sd_median_by_chrono_order\\")
-MERGED_PEARSON_CORR_DIRECTORY = os.path.join(BASE_PLOT_DIRECTORY, "merged_pearson_corr\\")
+MERGED_SPEARMAN_CORR_DIRECTORY = os.path.join(BASE_PLOT_DIRECTORY, "merged_spearman_corr\\")
 
 FILE_NAME_FORMAT = "{condition}{patient}_{passage}_S{s}P{p}.xls"
