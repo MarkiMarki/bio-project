@@ -1,6 +1,9 @@
 import numpy as np
+import json
 
 # Variable names that didn't read properly are replaced using this mapper
+from src.settings.base_settings import PATIENT_BY_PLATE_FILE_PATH
+
 COLUMN_RENAME_MAPPER = {
     'Unnamed: 0': 'Condition',
     'Unnamed: 1': 'Patient',
@@ -41,3 +44,7 @@ ER_LYSO_UNIQUE_VARIABLES = {
     "LYSO INTENSITY",
     "LYSO COUNT",
 }
+
+PATIENTS_CODES_BY_PLATE= None
+with open(PATIENT_BY_PLATE_FILE_PATH) as f:
+  PATIENTS_CODES_BY_PLATE = json.load(f)

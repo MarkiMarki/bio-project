@@ -39,16 +39,39 @@ def plot_mito_tmre(data, code, save=True, show=False):
 def drop_irrelevant_variables(data):
     return data.drop(columns=IRRELEVANT_VARIABLES)
 
+# Plot heatmap by desired mix
+def plot_heatmaps_by_mix(data, code, mix, save=True, show=False):
+    if mix == "er_lyso":
+        plot_er_lyso(data=data,code=code,save=save,show=show)
+    elif mix == "mito_tmre":
+        plot_mito_tmre(data=data, code=code, save=save, show=show)
+
+
+
 # Plots correlarion heatmap for all variables / sorted R squared against chronological order (decided in plot_settings)
 if __name__ == "__main__":
-    measurement_codes = get_all_measurement_codes("tidy")
-    measurement_count = len(measurement_codes)
-    i = 0
-    for measurement_code in measurement_codes:
-        i += 1
-        print("Processing " + measurement_code + ": {index} / {length}".format(index=i, length=measurement_count))
-        measurement_path = os.path.join(TIDY_DATA_DIRECTORY, measurement_code + ".csv")
-        measurement_data = pd.read_csv(measurement_path, index_col=0)
-        measurement_data = drop_irrelevant_variables(measurement_data)
-        plot_er_lyso(data=measurement_data, code=measurement_code)
-        plot_mito_tmre(data=measurement_data, code=measurement_code)
+    for mix in ["er_lyso", "mito_tmre"]:
+        print(mix + "\n ======================================")
+        i = 0
+        measurement_codes = get_all_patient_codes(
+            folder="tidy",
+            mix=mix
+        )
+        measurement_count = len(measurement_codes)
+        for measurement_code in measurement_codes:
+            i += 1
+            print("Processing " + measurement_code + ": {index} / {length}".format(index=i, length=measurement_count))
+            measurement_data = get_tidy_data(
+                measurement_code=measurement_code,
+                mix=mix
+            )
+            if measurement_data is not None:
+                measurement_data = measurement_data.drop(columns=IRRELEVANT_VARIABLES)
+                plot_heatmaps_by_mix(data=measurement_data, code= measurement_code, mix=mix)
+
+
+
+
+
+
+

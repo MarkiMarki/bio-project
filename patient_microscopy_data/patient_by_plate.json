@@ -1,0 +1,175 @@
+{
+  "S1P6": {
+    "patient_codes": [
+      "5OZ_6",
+      "FDN_11"
+    ],
+    "mix": "er_lyso"
+  },
+  "S1P5": {
+    "patient_codes": [
+      "5OZ_6",
+      "FDN_11"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S3P7": {
+    "patient_codes": [
+      "SA0152_9",
+      "SA0887_7"
+    ],
+    "mix": "er_lyso"
+  },
+  "S5P4": {
+    "patient_codes": [
+      "AV9915_8",
+      "HV31238_5"
+    ],
+    "mix": "er_lyso"
+  },
+  "S0P1": {
+    "patient_codes": [
+      "Mig",
+      "NA1021_10"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S3P6": {
+    "patient_codes": [
+      "SA0152_9",
+      "SA0887_7"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S6P2": {
+    "patient_codes": [
+      "FA0440_5",
+      "FA0883_5"
+    ],
+    "mix": "er_lyso"
+  },
+  "S2P4": {
+    "patient_codes": [
+      "NA0686_7",
+      "NA1005_5"
+    ],
+    "mix": "er_lyso"
+  },
+  "S4P2": {
+    "patient_codes": [
+      "CMF_5",
+      "UW_5"
+    ],
+    "mix": "er_lyso"
+  },
+  "S2P1": {
+    "patient_codes": [
+      "FA0337_5 MITO"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S5P3": {
+    "patient_codes": [
+      "AV9915_8",
+      "HV31238_5"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S4P3": {
+    "patient_codes": [
+      "MB6894_4",
+      "NA0566_5"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S6P1": {
+    "patient_codes": [
+      "FA0440_5",
+      "FA0883_5"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S1P9": {
+    "patient_codes": [
+      "NA0251_6",
+      "SA0093_6"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S4P5": {
+    "patient_codes": [
+      "FA0337_6",
+      "FA0490_6"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S5P1": {
+    "patient_codes": [
+      "JD001_4",
+      "MV16267_5"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S5P2": {
+    "patient_codes": [
+      "JD001_4",
+      "MV16267_5"
+    ],
+    "mix": "er_lyso"
+  },
+  "S2P5": {
+    "patient_codes": [
+      "NA0686_7B",
+      "NA1005_5B"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S3P1": {
+    "patient_codes": [
+      "FA0281_6 Mito"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S0P2": {
+    "patient_codes": [
+      "Mig",
+      "NA1021_10"
+    ],
+    "mix": "er_lyso"
+  },
+  "S4P1": {
+    "patient_codes": [
+      "CMF_5",
+      "UW_5"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S1P1": {
+    "patient_codes": [
+      "NA0251_6",
+      "SA0093_6"
+    ],
+    "mix": "er_lyso"
+  },
+  "S2P3": {
+    "patient_codes": [
+      "NA0686_7",
+      "NA1005_5"
+    ],
+    "mix": "mito_tmre"
+  },
+  "S4P6": {
+    "patient_codes": [
+      "FA0337_6",
+      "FA0490_6"
+    ],
+    "mix": "er_lyso"
+  },
+  "S4P4": {
+    "patient_codes": [
+      "MB6894_4",
+      "NA0566_5"
+    ],
+    "mix": "er_lyso"
+  }
+}

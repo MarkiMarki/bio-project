@@ -6,6 +6,7 @@ import re
 from os import listdir
 from os.path import isfile, join
 import glob
+import json
 
 
 # Create a new directory in a given path
@@ -33,32 +34,57 @@ def get_ith_number(input_string, i):
         print("Field was not a string")
 
 
-# Returning measurement code - <CONIDITION><PATIENT>_<SET> from a given filename
+# Returning measurement code - <CONIDITION><PATIENT>_<PLATE> from a given filename
 @np.vectorize
-def get_measurement_code_from_filename(input_string):
+def get_patient_code_from_filename(input_string):
     try:
         return input_string.split('_S')[0]
     except TypeError:
         print("Field was not a string")
 
 
+@np.vectorize
+def get_plate_code_from_filename(input_string):
+    try:
+        return re.findall(r"S\dP\d", input_string)[0]
+    except TypeError:
+        print("Field was not a string")
+
+def get_mix_from_plate_code(plate_code):
+    filename_list = glob.glob(RAW_DATA_DIRECTORY + "*_"+ plate_code+'.xls')
+    patient_vars = list(pd.read_excel(filename_list[0], header=1).rename(mapper=COLUMN_RENAME_MAPPER, axis=1))
+    if "ER AREA" in patient_vars:
+        return "er_lyso"
+    return "mito_tmre"
+
+
+def get_patient_vs_plate_tuple_from_filenames(input_string):
+    patient_codes = get_patient_code_from_filename(input_string)
+    plate_codes = get_plate_code_from_filename(input_string)
+    plate_set = set(plate_codes)
+    return {plate_code: {
+        "patient_codes": list(patient_codes[np.where(plate_codes == plate_code)]),
+        "mix": get_mix_from_plate_code(plate_code)
+    } for plate_code in plate_set}
+
+
 # Getting all measurement codes from the raw / tidy data directory
-def get_all_measurement_codes(folder="raw",mix = "merged"):
+def get_all_patient_codes(folder="raw", mix="merged"):
     measurement_codes = None
     if folder == "raw":
         filenames = [f for f in listdir(RAW_DATA_DIRECTORY)
                      if isfile(join(RAW_DATA_DIRECTORY, f)) and '.xls' in f]
-        measurement_codes = set(get_measurement_code_from_filename(filenames))
+        measurement_codes = set(get_patient_code_from_filename(filenames))
     elif folder == "tidy":
-        measurement_codes = [f.split('.')[0] for f in listdir(TIDY_DATA_DIRECTORY+mix+"\\")
-                             if isfile(join(TIDY_DATA_DIRECTORY+mix+"\\", f)) and '.csv' in f]
+        measurement_codes = [f.split('.')[0] for f in listdir(TIDY_DATA_DIRECTORY + mix + "\\")
+                             if isfile(join(TIDY_DATA_DIRECTORY + mix + "\\", f)) and '.csv' in f]
     return measurement_codes
 
 
 # Receives a measurement code and returns a tidy dataframe of the measurement
-def get_tidy_data(measurement_code, mix="merged", from_raw = False):
+def get_tidy_data(measurement_code, mix="merged", from_raw=False):
     if not from_raw:
-        measurement_data = pd.read_csv(TIDY_DATA_DIRECTORY + mix + "\\" + measurement_code + ".csv",index_col=0)
+        measurement_data = pd.read_csv(TIDY_DATA_DIRECTORY + mix + "\\" + measurement_code + ".csv", index_col=0)
         return measurement_data
 
     # Looping over all file paths that exist for the measurement
@@ -95,3 +121,9 @@ def get_tidy_data(measurement_code, mix="merged", from_raw = False):
 
     return None
 
+
+def group_patients_by_plate():
+    filenames = [f for f in listdir(RAW_DATA_DIRECTORY)
+                 if isfile(join(RAW_DATA_DIRECTORY, f)) and '.xls' in f]
+    patient_vs_plate = get_patient_vs_plate_tuple_from_filenames(filenames)
+    return patient_vs_plate

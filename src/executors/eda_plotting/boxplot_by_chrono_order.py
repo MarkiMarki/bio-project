@@ -5,7 +5,7 @@ from src.resources.tidying_microscopy import *
 
 if __name__ == "__main__":
 
-    measurement_codes = get_all_measurement_codes("tidy")
+    measurement_codes = get_all_patient_codes("tidy")
     measurement_count = len(measurement_codes)
     i = 0
     for measurement_code in measurement_codes:
