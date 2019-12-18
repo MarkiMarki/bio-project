@@ -157,6 +157,9 @@ class Plate:
             variables = set(patient_data)
             for var in IRRELEVANT_VARIABLES:
                 variables.discard(var)
+            ###########################################################################
+            ############# Subtract the reference (0) from each feature ################
+            ###########################################################################
 
             patient_data[list(variables)] = patient_data[list(variables)].replace(0, 0.000001).apply(np.log)
 
@@ -167,6 +170,10 @@ class Plate:
                     patient_data.loc[patient_data.Order == index, var] += log_medians_mean[var] - log_median_row[var]
 
             patient_data[list(variables)] = patient_data[list(variables)].apply(np.exp)
+
+            ###########################################################################
+            ############# Add the reference (0) from each feature #####################
+            ###########################################################################
 
             print("Saving " + patient)
             dirname = os.path.join(STRATIFIED_DATA_DIRECTORY, patient)

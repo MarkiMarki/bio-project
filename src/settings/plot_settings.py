@@ -4,9 +4,10 @@ IRRELEVANT_VARIABLES = {
     "Row",
     "Col",
     "Target",
-    "NUCLEAR PARIMETER",
-    "CELL PARIEMETER",
     "Field",
+    "Passage",
+    "Condition",
+    "Patient",
 }
 
 # If True: plot_measurement_corr_heatmap() will plot a sorted list of R squares against HEATMAP_TARGET_VARIABLE
