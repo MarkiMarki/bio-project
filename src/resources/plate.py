@@ -5,22 +5,22 @@ import seaborn as sns
 import numpy as np
 from src.resources.plot_helper import heatmap
 from src.resources.tidying_microscopy import get_ith_number, mkdir_p
-from src.settings.base_settings import TIDY_DATA_DIRECTORY, FEATURE_MEDIAN_BY_PLATE_DIRECTORY, \
-    STRATIFIED_DATA_DIRECTORY, SD_MEDIAN_DIRECTORY, PAIR_PLOT_DIRECTORY, BOXPLOT_CHRONO_ORDER_DIRECTORY, \
-    CUTOFF_TIDY_DATA_DIRECTORY, STRATIFIED_CUTOFF_DATA_DIRECTORY
+from src.settings.base_settings import FEATURE_MEDIAN_BY_PLATE_DIRECTORY, \
+    STRATIFIED_DATA_DIRECTORY, SD_MEDIAN_DIRECTORY, PAIR_PLOT_DIRECTORY, BOXPLOT_CHRONO_ORDER_DIRECTORY
 from src.settings.plot_settings import IRRELEVANT_VARIABLES
 from src.settings.tidying_settings import COLUMN_RENAME_MAPPER, SERPENT_ORDERED_ITERATOR
 
 
 class Plate:
-    def __init__(self, code, mix, path_to_raw_dir, patients, data_type="tidy_cutoff"):
+    def __init__(self, code, mix, raw_data_paths, tidy_data_dir, patients, data_type="tidy"):
+        self.tidy_data_dir = tidy_data_dir
         self.code = code
         self.mix = mix
-        self.path_to_raw_dir = path_to_raw_dir
+        self.raw_data_paths = raw_data_paths
         self.patients = patients
         self.data_type = data_type
-
         self.path_to_tidy_data = self.get_tidy_data_path()
+
         if not self.does_file_exist(self.path_to_tidy_data):
             self.save_tidy_data()
 
@@ -38,10 +38,7 @@ class Plate:
             return False
 
     def get_tidy_data_path(self):
-        if "cutoff" in self.data_type:
-            return os.path.join(os.path.join(CUTOFF_TIDY_DATA_DIRECTORY, self.mix), self.code + ".csv")
-        else:
-            return os.path.join(os.path.join(TIDY_DATA_DIRECTORY, self.mix), self.code + ".csv")
+        return os.path.join(os.path.join(self.tidy_data_dir, self.mix), self.code + ".csv")
 
     # get data
     def get_data(self):
@@ -55,13 +52,8 @@ class Plate:
 
     def get_stratified_data(self):
         paths = []
-        if "cutoff" in self.data_type:
-            paths = [os.path.join(os.path.join(STRATIFIED_CUTOFF_DATA_DIRECTORY, patient),
-                                  patient + "_" + self.code + ".csv")
-                     for patient in self.patients]
-        else:
-            paths = [os.path.join(os.path.join(STRATIFIED_DATA_DIRECTORY, patient), patient + "_" + self.code + ".csv")
-                     for patient in self.patients]
+        paths = [os.path.join(os.path.join(STRATIFIED_DATA_DIRECTORY, patient), patient + "_" + self.code + ".csv")
+                 for patient in self.patients]
         for path in paths:
             if not self.does_file_exist(path):
                 self.save_mean_median_stratified_data()
@@ -72,76 +64,44 @@ class Plate:
     def save_tidy_data(self):
         print("Saving plate " + self.code)
         df_list = []
-        for dirpath, dirnames, filenames in os.walk(self.path_to_raw_dir):
-            for filename in filenames:
+        for filepath in self.raw_data_paths:
+            # Reading the file to a dataframe with fixed column names
+            patient_data = pd.read_excel(filepath, header=1)
+            patient_data.rename(columns={
+                patient_data.columns[0]: "Condition",
+                patient_data.columns[1]: "Patient",
+                patient_data.columns[2]: "Row",
+                patient_data.columns[3]: "Col"
+            }, inplace=True)
+            # Renaming LYSOTRACKER / LYSOTRECKER to LYSO
+            variables = set(patient_data)
+            patient_data.rename(columns={
+                variable: variable.replace('TRACKER', '').replace('TRECKER', '')
+                for variable in variables
+            }, inplace=True)
+            # Extracting the field from the Section variable
+            patient_data['Field'] = patient_data['Section'].apply(get_ith_number, i=1)
+            # Splitting Patient and Passage
+            new = []
+            if '/' in patient_data["Patient"][0]:
+                new = patient_data["Patient"].str.split("/", n=1, expand=True)
+            if '\\' in patient_data["Patient"][0]:
+                new = patient_data["Patient"].str.split("\\", n=1, expand=True)
+            if len(list(new)) == 2:
+                patient_data["Passage"] = new[1]
+                patient_data["Patient"] = new[0]
+            # Getting rid of unwanted variables
+            columns_to_drop = [s for s in list(patient_data) if " POS " in s] + \
+                              ['Section', 'NUC CG X', 'NUC CG Y']
+            # Adding a measurement chronological order variable
+            patient_data["Order"] = 0
+            j = 0
+            for (row, col) in SERPENT_ORDERED_ITERATOR:
+                patient_data.loc[(patient_data["Row"] == row) & (patient_data["Col"] == col), 'Order'] = j
+                j = j + 1
+            patient_data = patient_data.drop(axis=1, labels=columns_to_drop)
 
-                filepath = os.path.join(self.path_to_raw_dir, filename)
-
-                # Reading the file to a dataframe with fixed column names
-                patient_data = pd.read_excel(filepath, header=1)
-                patient_data.rename(columns={
-                    patient_data.columns[0]: "Condition",
-                    patient_data.columns[1]: "Patient",
-                    patient_data.columns[2]: "Row",
-                    patient_data.columns[3]: "Col"
-
-                }, inplace=True)
-
-                # Renaming LYSOTRACKER / LYSOTRECKER to LYSO
-                variables = set(patient_data)
-                patient_data.rename(columns={
-                    variable: variable.replace('TRACKER', '').replace('TRECKER', '')
-                    for variable in variables
-                }, inplace=True)
-
-                # Extracting the field from the Section variable
-                patient_data['Field'] = patient_data['Section'].apply(get_ith_number, i=1)
-
-                # Splitting Patient and Passage
-                new = []
-                if '/' in patient_data["Patient"][0]:
-                    new = patient_data["Patient"].str.split("/", n=1, expand=True)
-                if '\\' in patient_data["Patient"][0]:
-                    new = patient_data["Patient"].str.split("\\", n=1, expand=True)
-                if len(list(new)) == 2:
-                    patient_data["Passage"] = new[1]
-                    patient_data["Patient"] = new[0]
-
-                # Getting rid of unwanted variables
-                columns_to_drop = [s for s in list(patient_data) if " POS " in s] + \
-                                  ['Section', 'NUC CG X', 'NUC CG Y']
-
-                # Adding a measurement chronological order variable
-                patient_data["Order"] = 0
-                j = 0
-                for (row, col) in SERPENT_ORDERED_ITERATOR:
-                    patient_data.loc[(patient_data["Row"] == row) & (patient_data["Col"] == col), 'Order'] = j
-                    j = j + 1
-                patient_data = patient_data.drop(axis=1, labels=columns_to_drop)
-
-                # For cutoff - filter data for 3 std
-                # if "cutoff" in self.data_type:
-                #     variables = set(patient_data)
-                #     for var in IRRELEVANT_VARIABLES:
-                #         variables.discard(var)
-                #
-                #     cutoff_limits = patient_data[variables].groupby("Order").agg(
-                #         {
-                #             var: self.get_cutoff_limits
-                #             for var in variables
-                #         })
-                #     indices_to_drop = []
-                #     for index in cutoff_limits.index:
-                #         for var in variables:
-                #             var_indices = list(patient_data.index[
-                #                     cutoff_limits.loc[index, var][0] > patient_data[var]]) + list(patient_data.index[
-                #                                        cutoff_limits.loc[index, var][1] < patient_data[var]])
-                #             indices_to_drop += var_indices
-                #
-                #     patient_data.drop(index=indices_to_drop, inplace=True)
-
-                df_list.append(patient_data)
-
+            df_list.append(patient_data)
         all_data = pd.concat(df_list, sort=False)
 
         mkdir_p(os.path.dirname(self.path_to_tidy_data))

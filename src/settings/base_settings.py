@@ -30,3 +30,5 @@ FEATURE_MEDIAN_BY_PLATE_DIRECTORY = os.path.join(BASE_PLOT_DIRECTORY, "feature_m
 
 FILE_NAME_FORMAT = "{condition}{patient}_{passage}_{plate}.xls"
 PLATE_REGEX = re.compile("S\dP\d")
+
+MEASUREMENT_REGEX_STR = "_{mix}_S\dP\d"
