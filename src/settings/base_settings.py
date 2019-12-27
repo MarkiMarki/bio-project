@@ -3,7 +3,7 @@ import re
 from abspath_routing import PROJECT_ROOT_PATH
 
 # Paths to data directories
-BASE_DATA_DIRECTORY = os.path.join(PROJECT_ROOT_PATH, "patient_microscopy_data")
+BASE_DATA_DIRECTORY = os.path.join(PROJECT_ROOT_PATH, "data")
 TIDY_DATA_DIRECTORY = os.path.join(BASE_DATA_DIRECTORY, 'tidy_data')
 RAW_DATA_DIRECTORY = os.path.join(BASE_DATA_DIRECTORY, 'raw_data')
 STRATIFIED_DATA_DIRECTORY = os.path.join(BASE_DATA_DIRECTORY, 'stratified_data')

@@ -104,6 +104,12 @@ class AllPlates:
 
         return plates
 
+    # Returns the plates that contain a given patient
+    def get_plates_for_patient(self, patient):
+        return [plate for plate in self.plates if patient in plate.patients]
+
+
+
     '''
     DATA HANDLING METHODS
     '''
