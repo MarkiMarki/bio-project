@@ -1,6 +1,5 @@
 project-venv
 literature
 *.pyc
-src/settings/qnap_routing.py
 *.csv
 *.xls
