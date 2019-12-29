@@ -83,9 +83,9 @@ if __name__ == "__main__": main()
 #########################################################
 
 class database:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs):                    # file name and table properties
         self.filename = kwargs.get('filename')
-        self.table = kwargs.get('table', 'test')
+        self.table = kwargs.get('table', 'test')        #no under scores= meant to be accessiable to outside
     
     def sql_do(self, sql, *params):
         self._db.execute(sql, params)
@@ -119,7 +119,7 @@ class database:
         for row in cursor:
             yield dict(row)
 
-    @property
+    @property                               # decorator to allow the filenamed to be assigned like that
     def filename(self): return self._filename
 
     @filename.setter
@@ -143,7 +143,7 @@ class database:
             del self._filename
 
 def main():
-    db = database(filename = 'test.db', table = 'test')
+    db = database(filename = 'test.db', table = 'test') #create an object an initi
 
     print('Create table test')
     db.sql_do('drop table if exists test')
