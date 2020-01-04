@@ -14,7 +14,7 @@
 
 5. Verify every .xls file has the following pattern:
     
-    [Condition][Patient code]\_[Progeny]\_[Mix]\_[Plate code].xls
+    [Condition][Patient code]\_[Passage]\_[Mix]\_[Plate code].xls
     
     i.e: FA0337_5_MT_S2P1.xls means:
     - Condition = FA
